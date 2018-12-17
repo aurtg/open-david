@@ -1,0 +1,21 @@
+# -*- coding: utf-8 -*-
+
+# ---- Rules
+
+rule rob-criminal    { rob(e1) ^ subj(e1, x) ^ obj(e1, y) => criminal(e2) ^ subj(e2, x) }
+rule kill-criminal   { kill(e1) ^ subj(e1, x) ^ obj(e1, y) => criminal(e2) ^ subj(e2, x) }
+rule kill-die        { kill(e1) ^ subj(e1, x) ^ obj(e1, y) => die(e2) ^ subj(e2, y) }
+rule criminal-arrest { criminal(e1) ^ subj(e1, x) => arrest(e2) ^ obj(e2, x) }
+rule arrest-police   { arrest(e1) ^ subj(e1, x) => police(x) }
+
+mutual-exclusion { rob(e) v kill(e) v arrest(e) v die(e) v criminal(e) }
+
+property subj/2 { abstract:1, right-unique:1 }
+property obj/2 { abstract:1, right-unique:1 }
+
+# ---- Problems
+
+problem toy1 {
+    observe { police(John) ^ die(E1) ^ subj(E1, Mary) ^ arrest(E2) ^ subj(E2, x) ^ obj(E2, Bob) }
+    require { (x = John) }
+}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>__NAME__</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+    <style type="text/css">
+      html { height: 100%; }
+      body {
+	  height: 100%;
+	  margin: 0;
+      }
+      div {
+	  box-sizing: border-box;
+      }
+      #proofgraph {
+	  float: left;
+          width: 100%;
+          height: 100%;
+	  margin-left: -400px;
+	  padding-left: 400px;
+      }
+      #infobox {
+	  float: left;
+	  width: 400px;
+	  height: 100%;
+	  background-color: #202020;
+	  color: #ffffff;
+	  font-size: 0.8rem;
+      }
+      #metainfo {
+	  padding: 0px 20px 10px;
+	  width: 100%;
+      }
+      .graphinfo {
+	  padding: 0px 20px 20px;
+	  width: 100%;
+      }
+      div.table {
+	  float: left;
+	  display: table;
+      }
+      div.lcell {
+	  display: table-cell;
+	  padding-right: 10px;
+	  text-align: right;
+      }
+      div.rcell { display: table-cell; }
+      #metainfo div.table { width: 360px; }
+      #metainfo div.row { display: table-row; }
+      #metainfo div.lcell { width: 140px; }
+      #metainfo div.rcell { width: 220px; }
+      .graphinfo div.top {
+	  width: 80px;
+	  float: left;
+	  font-weight: bold;
+      }
+      .graphinfo div.table
+      {
+	  width: 280px;
+	  border-left-style: solid;
+	  border-left-width: 1px;
+	  border-left-color: #ffffff;
+	  margin-bottom: 5px;
+      }
+      .graphinfo div.lcell { width: 90px; }
+      .graphinfo div.rcell { width: 190px; }
+    </style>
+  </head>
+  <body>
+    <div id="infobox">
+      <div id="metainfo">
+	<h2>General</h2>
+	<div class="table">
+	  <div class="row">
+	    <div class="lcell">Problem:</div>
+	    <div class="rcell">__NAME__</div>
+	  </div>
+	  <div class="row">
+	    <div class="lcell">Executed:</div>
+	    <div class="rcell">__EXECUTED__</div>
+	  </div>
+	  <div class="row">
+	    <div class="lcell">Version:</div>
+	    <div class="rcell">__VERSION__</div>
+	  </div>
+	  <div class="row">
+	    <div class="lcell">Time[lhs]:</div>
+	    <div class="rcell">__LHS_TIME__</div>
+	  </div>
+	  <div class="row">
+	    <div class="lcell">Time[cnv]:</div>
+	    <div class="rcell">__CNV_TIME__</div>
+	  </div>
+	  <div class="row">
+	    <div class="lcell">Time[sol]:</div>
+	    <div class="rcell">__SOL_TIME__</div>
+	  </div>
+	  <div class="row">
+	    <div class="lcell">Time[all]:</div>
+	    <div class="rcell">__ALL_TIME__</div>
+	  </div>
+	</div>
+      </div>
+      <div id="nodeinfo" class="graphinfo"></div>
+      <div id="edgeinfo" class="graphinfo"></div>
+    </div>
+    <div id="proofgraph"></div>
+
+    <script type="text/javascript">
+      var nodes = __NODES__;
+      var edges = __EDGES__;
+      var rules = __RULES__;
+
+      var nid2idx = {}
+      for (var i = 0; i < nodes.length; ++i)
+	  nid2idx[nodes[i].id] = i;
+
+      var eid2idx = {}
+      for (var i = 0; i < edges.length; ++i)
+	  eid2idx[edges[i].id] = i;
+
+      var rid2idx = {}
+      for (var i = 0; i < rules.length; ++i)
+	  rid2idx[rules[i].rid] = i;
+
+      function make_row(c1, c2)
+      {
+	  return '<div class=\"row\">' +
+	      '<div class=\"lcell\">' + c1 + '</div>' +
+	      '<div class=\"rcell\">' + c2 + '</div>' +
+	      '</div>';
+      };
+      
+      function node2html(nid_vj)
+      {
+	  var n = nodes[nid2idx[nid_vj]];
+	  if (n.type == 'junction')
+	      return ''
+	  else
+	      return '<div class=\"top\">node[' + n.id +']</div>' +
+	      '<div class=\"table\">' +
+	      make_row('Atom:', n.label) + make_row('Depth:', n.level) +
+	      '</div>';
+      };
+
+      function edge2html(eid_vj)
+      {
+	  var e = edges[eid2idx[eid_vj]];
+	  var h = '<div class=\"top\">edge[' +  e.eid + ']</div>';
+	  if (e.type == 'unify')
+	  {
+	      return h + '<div class=\"table\">' +
+		  make_row('Type:', e.type) + make_row('Equality:', e.label) +
+		  '</div>';
+	  }
+	  else
+	  {
+	      var r = rules[rid2idx[e.rid]]
+	      return h + '<div class=\"table\">'+
+		  make_row('Type:', e.type) +
+		  make_row('Rule:', '[' + e.rid + '] ' + r.name + '<br>' +  r.formula) +
+		  '</div>';
+	  }
+
+      };
+      
+      // create a network
+      var container = document.getElementById('proofgraph');
+      var data = {
+	  nodes: new vis.DataSet(nodes),
+	  edges: new vis.DataSet(edges)
+      };
+      var options = {
+	  nodes: {
+	      shape: 'box'
+	  },
+	  edges: {
+	      width: 2
+	  },
+	  layout: {
+	      hierarchical: {
+		  enabled: true,
+		  direction: 'DU'
+	      }
+	  }
+      };
+      var network = new vis.Network(container, data, options);
+
+      network.on("click", function (params) {
+          document.getElementById('nodeinfo').innerHTML = '<h2>Nodes</h2>';
+          document.getElementById('edgeinfo').innerHTML = '<h2>Edges</h2>';
+	  var processed = new Set();
+	  for (var nid_vj of params.nodes)
+	  {
+              document.getElementById('nodeinfo').innerHTML += node2html(nid_vj);
+	  }
+	  for (var eid_vj of params.edges)
+	  {
+	      var e = edges[eid2idx[eid_vj]];
+	      if (!processed.has(e.eid))
+	      {
+		  processed.add(e.eid);
+		  document.getElementById('edgeinfo').innerHTML += edge2html(eid_vj);
+	      }
+	  }
+      });
+    </script>
+  </body>    
+</html>

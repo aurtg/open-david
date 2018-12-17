@@ -1,0 +1,50 @@
+; DATA
+data/*
+!data/toy.dav
+
+; PYTHON
+*.pyc
+
+; FOR UNIX
+*.o
+bin/*
+lib/*
+
+; FOR WINDOWS
+Thumbs.db
+*.cmd
+*.obj
+*.exe
+*.pdb
+*.idb
+*.user
+*.aps
+*.pch
+*.vspscc
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+*.tlog
+*.VC.db
+*.sdf
+*.opensdf
+*/unsuccessfulbuild
+*.lastbuildstate
+*.cdb
+ipch
+vs/[Dd]ebug/*
+vs/[Rr]elease/*
+vs/[Ll]ib[Dd]ebug/*
+vs/[Ll]ib[Rr]elease/*
+
+; OTHERS
+*.pdf
+*.json
+out.*
+tmp.*
+tmp
