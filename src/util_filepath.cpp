@@ -35,22 +35,14 @@ bool filepath_t::find_file() const
 
 filepath_t filepath_t::filename() const
 {
-#ifdef _WIN32
-    auto idx = rfind("\\");
-#else
     auto idx = rfind("/");
-#endif
     return (idx >= 0) ? filepath_t(this->substr(idx + 1)) : (*this);
 }
 
 
 filepath_t filepath_t::dirname() const
 {
-#ifdef _WIN32
-    auto idx = rfind("\\");
-#else
     auto idx = rfind("/");
-#endif
     return (idx != std::string::npos) ? filepath_t(substr(0, idx)) : "";
 }
 

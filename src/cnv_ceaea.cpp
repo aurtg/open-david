@@ -130,6 +130,7 @@ void ceaea_converter_t::assign_query_reward(
         auto vi = out->vars.add_node_cost_variable(ni);
         assert(vi >= 0);
         queries.insert(ni);
+        opt->query2reward[ni] = comp->get_output();
     }
 
     // クエリ報酬の支払われ方のあらゆる組み合わせについてILP変数を定義する
@@ -302,7 +303,9 @@ ilp_converter_t* ceaea_converter_t::ceaea_generator_t::operator()(const kernel_t
 
 ceaea_converter_t::ceaea_member_t::ceaea_member_t(ilp::problem_t *m)
     : optional_member_t<ilp::problem_t>(m)
-{}
+{
+    query2reward.set_default(0.0);
+}
 
 
 void ceaea_converter_t::solution_decorator_t::operator()(
@@ -346,7 +349,7 @@ void ceaea_converter_t::solution_decorator_t::operator()(
             if (vi < 0) continue;
 
             bool is_explained = sol.truth(vi);
-            double reward = sol.problem()->vars.at(vi).coefficient();
+            double reward = opt->query2reward.get(ni);
             auto &&wr2 = wr.make_object_array_element_writer(true);
 
             wr2.write_field<int>("index", ni);

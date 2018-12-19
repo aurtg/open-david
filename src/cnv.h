@@ -366,6 +366,7 @@ public:
     {
         ceaea_member_t(ilp::problem_t *m);
         hash_set_t<ilp::variable_idx_t> vars_reward;
+        hash_map_t<pg::node_idx_t, double> query2reward;
     };
 
     struct solution_decorator_t : public json::decorator_t<ilp::solution_t>
