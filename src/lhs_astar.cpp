@@ -239,7 +239,7 @@ void astar_generator_t::chain_manager_t::insert(
 
     // ターゲットと単一化可能なノードの祖先に含まれるゴールは除外する
     {
-        std::unordered_set<pg::node_idx_t> ancs;
+        hash_set_t<pg::node_idx_t> ancs;
         for (const auto &hni : graph.hypernodes.node2hns.get(ci))
         {
             for (const auto &ei : graph.edges.tail2edges.get(hni))
@@ -251,7 +251,7 @@ void astar_generator_t::chain_manager_t::insert(
                 
                 auto it_evd = graph.nodes.evidence.find(ni_uni);
                 if (it_evd != graph.nodes.evidence.end())
-                    ancs.insert(it_evd->second.nodes.begin(), it_evd->second.nodes.end());
+                    ancs += it_evd->second.nodes.merged();
             }
         }
         filter(gis, [&ancs](const goal_node_idx_t &gi) { return ancs.count(gi) == 0; });

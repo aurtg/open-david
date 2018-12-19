@@ -972,6 +972,9 @@ public:
     */
     atom_t substitute(const atom_t &a) const;
 
+    /** Returns true if this is empty, otherwise false. */
+    bool empty() const { return m_terms.empty(); }
+
     /** Gets list of clusters. */
     const std::list<std::unordered_set<term_t>>& clusters() const { return m_clusters; }
 

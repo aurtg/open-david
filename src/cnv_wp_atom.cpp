@@ -29,7 +29,7 @@ rule_weight_components_t atom_weight_provider_t::get_weights(rule_id_t rid) cons
     {
         auto is_invalid = [](double w) { return w == INVALID_WEIGHT; };
 
-        auto _get_weights = [&](const std::vector<double> &params, double w_all) -> std::vector<double>
+        auto get_atom_weights = [&](const std::vector<double> &params, double w_all) -> std::vector<double>
         {
             int num_invalid = std::count_if(params.begin(), params.end(), is_invalid);
 
@@ -67,17 +67,15 @@ rule_weight_components_t atom_weight_provider_t::get_weights(rule_id_t rid) cons
             return out;
         };
 
-        double weight_sum = conj.param().read_as_double_parameter(INVALID_WEIGHT);
-        if (is_invalid(weight_sum))
-            weight_sum = (is_rhs ? m_defw_rhs : m_defw_lhs);
-        component_array_t out;
+        double w_conj = conj.param().read_as_double_parameter(is_rhs ? m_defw_rhs : m_defw_lhs);
+        auto weights =
+            conj.empty() ? std::vector<double>(1, w_conj) :
+            get_atom_weights(read_doubles_from(conj), w_conj);
 
-        for (const auto &w : _get_weights(read_doubles_from(conj), weight_sum))
+        component_array_t out;
+        for (const auto &w : weights)
         {
-            if (decorator)
-                out.push_back((*decorator)(calc::give(w)));
-            else
-                out.push_back(calc::give(w));
+            out.push_back(decorator ? (*decorator)(calc::give(w)) : calc::give(w));
         }
 
         return out;

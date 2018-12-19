@@ -337,6 +337,12 @@ public:
 
     private:
         problem_t *m_master;
+
+        /**
+        * Map from a conjunction to exclusions of which conjunction is essentially equal to it.
+        * This map is used only in add(pg::exclusion_t).
+        */
+        hash_map_t<conjunction_t, std::list<pg::exclusion_idx_t>> conj2excs;
     } vars;
 
     /** A container of ilp-constraints. */

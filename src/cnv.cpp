@@ -255,12 +255,12 @@ void ilp_converter_t::get_antecedents_of_unification(
     hash_set_t<pg::node_idx_t> facts(out->graph()->get_facts().set());
     hash_set_t<pg::node_idx_t> queries(out->graph()->get_queries().set());
 
-    // nodes[ni] およびその祖先に対して vi を説明者として追加する
+    // nodes[ni] およびそれが説明するノード群に対して vi を説明者として追加する
     auto _update = [&](pg::node_idx_t ni, ilp::variable_idx_t vi)
     {
         const auto &n1 = out->graph()->nodes.at(ni);
         const auto &evd = out->graph()->nodes.evidence.get(ni);
-        for (const auto &nj : evd.nodes)
+        for (const auto &nj : evd.nodes.explained)
         {
             const auto &n2 = out->graph()->nodes.at(nj);
             if (n1.master() != n2.master())

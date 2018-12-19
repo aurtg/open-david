@@ -1054,12 +1054,26 @@ variable_idx_t problem_t::variables_t::add(const pg::exclusion_t &ex)
     if (ex.index() < 0) return -1;
 
     auto it = exclusion2var.find(ex.index());
-    if (it != exclusion2var.end()) return it->second;
+    if (it != exclusion2var.end())
+        return it->second; // Already added!
 
-    variable_t v(format("violate-exclusion[%d]", ex.index()));
-    variable_idx_t vi = add(v);
+    auto &excs = conj2excs[ex.substituted()];
+    variable_idx_t vi(-1);
+
+    if (excs.empty())
+    {
+        variable_t v(format("violate-exclusion[%d]", ex.index()));
+        vi = add(v);
+    }
+    else
+    {
+        // Exclusion being essentially same as this was already added.
+        vi = exclusion2var.get(excs.front());
+        assert(vi >= 0);
+    }
 
     exclusion2var[ex.index()] = vi;
+    excs.push_back(ex.index());
     return vi;
 }
 

@@ -73,6 +73,27 @@ string_t exclusion_t::string() const
 }
 
 
+conjunction_t exclusion_t::substituted() const
+{
+    term_cluster_t tc;
+    for (const auto &a : (*this))
+    {
+        if (a.pid() == PID_EQ)
+            tc.add(a);
+    }
+    if (tc.empty()) return (*this);
+
+    conjunction_t conj;
+    for (const auto &a : (*this))
+    {
+        if (a.pid() != PID_EQ)
+            conj.push_back(tc.substitute(a));
+    }
+
+    conj.sort();
+    return conj;
 }
 
-}
+} // end of pg
+
+} // end of dav

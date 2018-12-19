@@ -1636,6 +1636,15 @@ void combination2(const Container &c, const Pred &p)
 } // end of dav
 
 
+template <class T, class Hash = std::hash<T> >
+dav::hash_set_t<T, Hash> operator+(const dav::hash_set_t<T, Hash> &x, const dav::hash_set_t<T, Hash> &y)
+{
+    dav::hash_set_t<T, Hash> out(x);
+    out.insert(y.begin(), y.end());
+    return std::move(out);
+}
+
+
 /**
 * @def DEFINE_ENUM_HASH
 * @brief Defines the hash class of given enum type.

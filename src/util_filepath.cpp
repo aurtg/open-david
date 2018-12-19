@@ -126,11 +126,7 @@ void filepath_t::mkdir() const
 
 void filepath_t::reguralize()
 {
-#ifdef _WIN32
-    assign(replace("/", "\\"));
-#else
     assign(replace("\\", "/"));
-#endif
 
     while (true)
     {

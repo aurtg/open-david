@@ -155,12 +155,15 @@ edge_idx_t proof_graph_t::apply(operator_ptr_t opr)
             auto it_a = nodes.evidence.find(nj);
             if (it_a != nodes.evidence.end())
             {
-                ants.nodes.insert(it_a->second.nodes.begin(), it_a->second.nodes.end());
-                ants.edges.insert(it_a->second.edges.begin(), it_a->second.edges.end());
+                ants.nodes.explained += it_a->second.nodes.explained;
+                ants.nodes.neighbors += it_a->second.nodes.neighbors;
+                ants.edges += it_a->second.edges;
             }
-            ants.nodes.insert(nj);
         }
-        ants.nodes.insert(hn_head.begin(), hn_head.end());
+        for (const auto &nj : hn_head)
+        {
+            if (nj != ni) ants.nodes.neighbors.insert(nj);
+        }
         ants.edges.insert(ei);
     }
 
@@ -363,7 +366,7 @@ node_idx_t proof_graph_t::nodes_t::add(
     type2nodes[type].insert(idx);
     depth2nodes[depth].insert(idx);
     atom2nodes[atom].insert(idx);
-    evidence[idx].nodes.insert(idx);
+    evidence[idx].nodes.explained.insert(idx);
 
     return idx;
 }

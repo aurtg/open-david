@@ -15,8 +15,8 @@ validator_t::validator_t(const proof_graph_t *m, const operator_t *opr)
         auto it_a = m_master->nodes.evidence.find(ni);
         if (it_a != m_master->nodes.evidence.end())
         {
-            m_nodes.insert(it_a->second.nodes.begin(), it_a->second.nodes.end());
-            m_edges.insert(it_a->second.edges.begin(), it_a->second.edges.end());
+            m_nodes += it_a->second.nodes.merged();
+            m_edges += it_a->second.edges;
         }
         m_nodes.insert(ni);
     }

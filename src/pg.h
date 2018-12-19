@@ -230,6 +230,9 @@ public:
     /** Returns the string-expression of this. */
     string_t string() const;
 
+    /** Returns the result of applying equalities in this to the other literals in this. */
+    conjunction_t substituted() const;
+
     inline const exclusion_idx_t& index() const { return m_index; }
     inline       exclusion_idx_t& index() { return m_index; }
 
@@ -725,11 +728,19 @@ public:
 	class nodes_t : public std::deque<node_t>
 	{
 	public:
-        struct evidence_t
+        struct antecedents_t
         {
-            evidence_t() = default;
-            std::unordered_set<node_idx_t> nodes;
-            std::unordered_set<edge_idx_t> edges;
+            antecedents_t() = default;
+            struct antecedent_nodes_t {
+                /** Nodes which the target-node deductively explains. */
+                hash_set_t<node_idx_t> explained;
+                /** Hypothesized nodes which are not explained by the target-node and are true when the target-node is true. */
+                hash_set_t<node_idx_t> neighbors;
+                /** Return the nodes which are true when the target-node is true, excluding observations not explained. */
+                hash_set_t<node_idx_t> merged() const { return explained + neighbors; }
+            } nodes;
+            /** Edges which are necessary to hypothesize the target-node. */
+            hash_set_t<edge_idx_t> edges;
         };
 
 		nodes_t(proof_graph_t *m) : m_master(m) {}
@@ -754,7 +765,7 @@ public:
         * Therefore the nodes of `evidence[i]` contain nodes in the master-hypernode of i-th node,
         * but do not contain observable nodes which are not related with i-th node.
         */
-        hash_map_t<node_idx_t, evidence_t> evidence;
+        hash_map_t<node_idx_t, antecedents_t> evidence;
 
 	private:
 		proof_graph_t *m_master;
