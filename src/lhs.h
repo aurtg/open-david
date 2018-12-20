@@ -138,7 +138,7 @@ private:
 
 /** A class to create latent-hypotheses-set of abduction.
  *  The search space is limited with depth. */
-class naive_generator_t : public lhs_generator_t
+class simple_generator_t : public lhs_generator_t
 {
 public:
     struct generator_t : public component_generator_t<kernel_t, lhs_generator_t>
@@ -146,7 +146,7 @@ public:
         virtual lhs_generator_t* operator()(const kernel_t*) const override;
     };
 
-    naive_generator_t(const kernel_t *ptr);
+    simple_generator_t(const kernel_t *ptr);
 
     virtual void validate() const override;
     virtual void write_json(json::object_writer_t&) const override;

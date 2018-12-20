@@ -133,8 +133,8 @@ lhs_generator_library_t* lhs_generator_library_t::instance()
 lhs_generator_library_t::lhs_generator_library_t()
 {
     add("astar", new lhs::astar_generator_t::generator_t());
-    add("naive", new lhs::naive_generator_t::generator_t());
-    add("naive-oneway", new lhs::naive_generator_t::generator_t());
+    add("simple", new lhs::simple_generator_t::generator_t());
+    add("naive", new lhs::simple_generator_t::generator_t()); // 後方互換性のため
 }
 
 

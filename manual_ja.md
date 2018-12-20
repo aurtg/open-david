@@ -232,7 +232,7 @@ Davidでは、推論の効率化のために、予め、背景知識における
 
 現在、以下のコンポーネントが利用可能です。
 
-### Naive Generator (`naive`)
+### Simple Generator (`simple`)
 
 ヒューリスティックを用いずに潜在仮説集合を生成するコンポーネントです。
 Phillip における `-c lhs=depth` に対応します。

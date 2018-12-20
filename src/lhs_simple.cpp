@@ -12,16 +12,16 @@ namespace lhs
 {
 
 
-naive_generator_t::naive_generator_t(const kernel_t *m)
+simple_generator_t::simple_generator_t(const kernel_t *m)
     : lhs_generator_t(m)
 {}
 
 
-void naive_generator_t::validate() const
+void simple_generator_t::validate() const
 {}
 
 
-void naive_generator_t::process()
+void simple_generator_t::process()
 {
     std::unordered_set<pg::chainer_t> processed;
     out.reset(new pg::proof_graph_t(master()->problem()));
@@ -95,16 +95,16 @@ void naive_generator_t::process()
 }
 
 
-void naive_generator_t::write_json(json::object_writer_t &wr) const
+void simple_generator_t::write_json(json::object_writer_t &wr) const
 {
     wr.write_field<string_t>("name", "naive");
     lhs_generator_t::write_json(wr);
 }
 
 
-lhs_generator_t* naive_generator_t::generator_t::operator()(const kernel_t *m) const
+lhs_generator_t* simple_generator_t::generator_t::operator()(const kernel_t *m) const
 {
-    return new lhs::naive_generator_t(m);
+    return new lhs::simple_generator_t(m);
 }
 
 

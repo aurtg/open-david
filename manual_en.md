@@ -1,6 +1,6 @@
 # Open-David
 
-The target of this manual is `open-david 1.73`.
+The target of this manual is `open-david 1.77`.
 
 -----
 
@@ -222,7 +222,7 @@ Regarding these components, the following options are commonly available.
 
 Currently, the following components are avaiable.
 
-### Naive Generator (`naive`)
+### Simple Generator (`simple`)
 
 This generate LHS without using heuristics.
 This corresponds to `-c lhs=depth` option in Phillip.

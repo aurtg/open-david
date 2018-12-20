@@ -1,3 +1,7 @@
+# 2018-12-20, Version 1.77
+
+- Renamed Naive-generator to Simple-generator
+
 # 2018-12-19, Version 1.76
 
 - Fixed JSON outputs by CEAE Abduction
