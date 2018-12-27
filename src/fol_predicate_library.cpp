@@ -5,6 +5,8 @@ namespace dav
 
 std::unique_ptr<predicate_library_t> predicate_library_t::ms_instance;
 
+std::mutex predicate_library_t::ms_mutex;
+
 
 void predicate_library_t::initialize(const filepath_t &p)
 {
@@ -106,6 +108,8 @@ void predicate_library_t::write() const
 
 predicate_id_t predicate_library_t::add(const predicate_t &p)
 {
+    std::lock_guard<std::mutex> lock(ms_mutex);
+
     auto found = m_pred2id.find(p.string());
 
     if (p.string() == "!/0")
@@ -148,6 +152,8 @@ void predicate_library_t::add_property(const predicate_property_t &fp)
 
 predicate_id_t predicate_library_t::pred2id(const string_t &pred) const
 {
+    std::lock_guard<std::mutex> lock(ms_mutex);
+
 	auto found = m_pred2id.find(pred);
 	return (found != m_pred2id.end()) ? found->second : PID_INVALID;
 }
@@ -155,7 +161,8 @@ predicate_id_t predicate_library_t::pred2id(const string_t &pred) const
 
 const predicate_t& predicate_library_t::id2pred(predicate_id_t id) const
 {
-	return (id < m_predicates.size()) ? m_predicates.at(id) : m_predicates.front();
+    std::lock_guard<std::mutex> lock(ms_mutex);
+    return (id < m_predicates.size()) ? m_predicates.at(id) : m_predicates.front();
 }
 
 

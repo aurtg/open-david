@@ -6,6 +6,9 @@ namespace dav
 namespace kb
 {
 
+std::mutex feature_to_rules_cdb_t::ms_mutex;
+
+
 void feature_to_rules_cdb_t::prepare_compile()
 {
 	cdb_data_t::prepare_compile();
@@ -15,27 +18,29 @@ void feature_to_rules_cdb_t::prepare_compile()
 
 void feature_to_rules_cdb_t::finalize()
 {
-	char key[256];
-	
+    if (is_writable())
+    {
+        char key[256];
 
-	for (const auto &p : m_feat2rids)
-	{
-		const conjunction_template_t &feat = p.first.first;
-		is_backward_t backward = p.first.second;
-        binary_writer_t wr_key(key, 256);
+        for (const auto &p : m_feat2rids)
+        {
+            const conjunction_template_t &feat = p.first.first;
+            is_backward_t backward = p.first.second;
+            binary_writer_t wr_key(key, 256);
 
-		wr_key.write<conjunction_template_t>(feat);
-		wr_key.write<char>(backward ? 1 : 0);
+            wr_key.write<conjunction_template_t>(feat);
+            wr_key.write<char>(backward ? 1 : 0);
 
-		std::vector<char> val(sizeof(size_t) + sizeof(rule_id_t) * p.second.size(), '\0');
-		binary_writer_t wr_val(&val[0], val.size());
+            std::vector<char> val(sizeof(size_t) + sizeof(rule_id_t) * p.second.size(), '\0');
+            binary_writer_t wr_val(&val[0], val.size());
 
-		wr_val.write<size_t>(p.second.size());
-		for (const auto &rid : p.second)
-			wr_val.write<rule_id_t>(rid);
+            wr_val.write<size_t>(p.second.size());
+            for (const auto &rid : p.second)
+                wr_val.write<rule_id_t>(rid);
 
-		put(key, wr_key.size(), &val[0], wr_val.size());
-	}
+            put(key, wr_key.size(), &val[0], wr_val.size());
+        }
+    }
 
 	cdb_data_t::finalize();
 }
@@ -54,7 +59,12 @@ std::list<rule_id_t> feature_to_rules_cdb_t::gets(
 	key_writer.write<char>(backward ? 1 : 0);
 
 	size_t value_size;
-	const char *value = (const char*)get(key, key_writer.size(), &value_size);
+    const char *value;
+
+    {
+        std::lock_guard<std::mutex> lock(ms_mutex);
+        value = (const char*)get(key, key_writer.size(), &value_size);
+    }
 
 	if (value != nullptr)
 	{

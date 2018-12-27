@@ -17,7 +17,7 @@ namespace dav
 
 std::unique_ptr<kernel_t> kernel_t::ms_instance;
 
-const string_t kernel_t::VERSION = "open-david.1.77";
+const string_t kernel_t::VERSION = "open-david.1.79";
 
 
 void kernel_t::initialize(const command_t &c)
@@ -253,6 +253,8 @@ void kernel_t::run()
 
     for (auto &k2j : m_k2j)
         k2j.write_footer();
+
+    kb::kb()->finalize();
 }
 
 

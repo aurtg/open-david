@@ -6,7 +6,7 @@ namespace dav
 namespace kb
 {
 
-std::mutex rule_library_t::ms_mutex;
+std::recursive_mutex rule_library_t::ms_mutex;
 
 
 
@@ -29,8 +29,6 @@ void rule_library_t::prepare_compile()
 
     if (not is_writable())
     {
-        std::lock_guard<std::mutex> lock(ms_mutex);
-
         auto flag = (std::ios::binary | std::ios::out);
         m_fo_idx.reset(new std::ofstream(filepath_idx().c_str(), flag));
         m_fo_dat.reset(new std::ofstream(filepath_dat().c_str(), flag));
@@ -50,8 +48,6 @@ void rule_library_t::prepare_query()
 
     if (not is_readable())
     {
-        std::lock_guard<std::mutex> lock(ms_mutex);
-
         auto flag = (std::ios::binary | std::ios::in);
         m_fi_idx.reset(new std::ifstream(filepath_idx().c_str(), flag));
         m_fi_dat.reset(new std::ifstream(filepath_dat().c_str(), flag));
@@ -70,8 +66,6 @@ void rule_library_t::prepare_query()
 
 void rule_library_t::finalize()
 {
-    std::lock_guard<std::mutex> lock(ms_mutex);
-
     if (is_writable())
     {
         m_fo_idx->write((char*)&m_num_rules, sizeof(size_t));
@@ -86,8 +80,6 @@ void rule_library_t::finalize()
 
 rule_id_t rule_library_t::add(rule_t &r)
 {
-    std::lock_guard<std::mutex> lock(ms_mutex);
-
     if (r.name().empty())
         r.set_name(get_name_of_unnamed_axiom());
 
@@ -118,10 +110,10 @@ rule_id_t rule_library_t::add(rule_t &r)
 
 rule_t rule_library_t::get(rule_id_t rid) const
 {
+    std::lock_guard<std::recursive_mutex> lock(ms_mutex);
+
     if (not is_readable())
         throw exception_t("Cannot get rules because KB is not readble.");
-
-    std::lock_guard<std::mutex> lock(ms_mutex);
 
     if (m_cache)
     {
@@ -173,10 +165,10 @@ rule_t rule_library_t::get(rule_id_t rid) const
 
 rule_id_t rule_library_t::add_temporally(const rule_t &r)
 {
+    std::lock_guard<std::recursive_mutex> lock(ms_mutex);
+
     if (not is_readable())
         throw exception_t("Cannot add temporal rules because KB is not readble.");
-
-    std::lock_guard<std::mutex> lock(ms_mutex);
 
     rule_id_t id = size() + m_tmp_rules.size() + 1;
     m_tmp_rules.push_back(r);
@@ -188,6 +180,25 @@ rule_id_t rule_library_t::add_temporally(const rule_t &r)
     }
 
     return id;
+}
+
+
+inline size_t rule_library_t::size() const
+{
+    std::lock_guard<std::recursive_mutex> lock(ms_mutex);
+    return m_num_rules;
+}
+
+inline bool rule_library_t::is_writable() const
+{
+    std::lock_guard<std::recursive_mutex> lock(ms_mutex);
+    return (bool)m_fo_idx and (bool)m_fo_dat;
+}
+
+inline bool rule_library_t::is_readable() const
+{
+    std::lock_guard<std::recursive_mutex> lock(ms_mutex);
+    return (bool)m_fi_idx and (bool)m_fi_dat;
 }
 
 

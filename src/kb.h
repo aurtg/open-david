@@ -46,6 +46,9 @@ public:
 	std::list<std::pair<conjunction_template_t, is_backward_t>> get(predicate_id_t) const;
 
 private:
+    /** Mutex for accessing to CDB. */
+    static std::mutex ms_mutex;
+
 	std::unordered_map<
 		predicate_id_t,
 		std::set<std::pair<conjunction_template_t, is_backward_t>>> m_features;
@@ -66,6 +69,9 @@ public:
 	void insert(const rule_t&);
 
 private:
+    /** Mutex for accessing to CDB. */
+    static std::mutex ms_mutex;
+
 	std::map<
 		std::pair<conjunction_template_t, is_backward_t>,
 		std::unordered_set<rule_id_t>> m_feat2rids;
@@ -85,8 +91,12 @@ public:
 	void insert(const T&, rule_id_t);
 
 private:
+    static std::mutex ms_mutex;
+
 	std::map<T, std::unordered_set<rule_id_t>> m_rids;
 };
+
+template <typename T> std::mutex rules_cdb_t<T>::ms_mutex;
 
 
 /** A class of database of axioms. */
@@ -106,11 +116,11 @@ public:
     rule_id_t add_temporally(const rule_t &r);
 
     /** Returns number of rules EXCLUDING temporal rules. */
-	inline size_t size() const { return m_num_rules; }
+    size_t size() const;
+    inline bool empty() const { return size() == 0; }
 
-	inline bool is_writable() const { return (bool)m_fo_idx and (bool)m_fo_dat; }
-	inline bool is_readable() const { return (bool)m_fi_idx and (bool)m_fi_dat; }
-	inline bool empty() const { return size() == 0; }
+    bool is_writable() const;
+    bool is_readable() const;
 
 private:
 	typedef unsigned long long pos_t;
@@ -119,7 +129,8 @@ private:
 	filepath_t filepath_idx() const { return m_filename + ".idx.cdb"; }
 	filepath_t filepath_dat() const { return m_filename + ".dat.cdb"; }
 
-	static std::mutex ms_mutex;
+    /** Mutex for methods callable in read-mode. */
+	static std::recursive_mutex ms_mutex;
 
 	filepath_t m_filename;
 	std::unique_ptr<std::ofstream> m_fo_idx, m_fo_dat;
@@ -134,7 +145,10 @@ private:
 };
 
 
-/** A class of knowledge-base. */
+/**
+ * A class of knowledge-base.
+ * This class is based on Singleton pattern.
+ */
 class knowledge_base_t
 {
 public:
@@ -241,7 +255,12 @@ template <typename T> std::list<rule_id_t> rules_cdb_t<T>::gets(const T &key) co
     key_writer.write<T>(key);
 
     size_t value_size;
-    const char *value = (const char*)get(key_bin, key_writer.size(), &value_size);
+    const char *value;
+
+    {
+        std::lock_guard<std::mutex> lock(ms_mutex);
+        value = (const char*)get(key_bin, key_writer.size(), &value_size);
+    }
 
     if (value != nullptr)
     {

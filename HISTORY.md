@@ -1,3 +1,10 @@
+# 2018-12-27, Version 1.79
+
+> Ver.1.78 was skipped.
+
+- Fixed issues in the finalization of knowledge-base.
+- Implemented exclusive access controls in some classes
+
 # 2018-12-20, Version 1.77
 
 - Renamed Naive-generator to Simple-generator

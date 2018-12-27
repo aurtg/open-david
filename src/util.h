@@ -324,7 +324,7 @@ public:
     static void reset_unknown_hash_count();
 
     /** Decrements the count of unbound variables. */
-    static void decrement_unknown_hash_count() { --ms_issued_variable_count; }
+    static void decrement_unknown_hash_count();
 
     /**
     * @brief Checks whether a hash of `str` has already issued.
@@ -342,10 +342,10 @@ public:
     string_hash_t(const std::string& s);
 
     /** Gets the string which this instance has. */
-    const std::string& string() const;
+    std::string string() const;
 
     /** Gets the string which this instance has. */
-    operator const std::string& () const;
+    operator std::string() const;
 
     string_hash_t& operator=(const std::string &s);
     string_hash_t& operator=(const string_hash_t &h);
@@ -424,6 +424,7 @@ public:
 protected:
     /** Gets the hash of `str` with assigning a hash to `str` if needed. */
     static unsigned get_hash(const std::string &str);
+    static std::string hash2str(unsigned);
 
     inline void set_flags(const std::string &str);
 

@@ -36,8 +36,17 @@ void string_hash_t::reset_unknown_hash_count()
 }
 
 
+void string_hash_t::decrement_unknown_hash_count()
+{
+    std::lock_guard<std::mutex> lock(ms_mutex_unknown);
+    --ms_issued_variable_count;
+}
+
+
 bool string_hash_t::find(const string_t &str, string_hash_t *out)
 {
+    std::lock_guard<std::mutex> lock(ms_mutex_hash);
+
     auto it = ms_hashier.find(str);
 
     if (it != ms_hashier.end())
@@ -81,6 +90,13 @@ unsigned string_hash_t::get_hash(const std::string &str)
             return idx;
         }
     }
+}
+
+
+std::string string_hash_t::hash2str(unsigned i)
+{
+    std::lock_guard<std::mutex> lock(ms_mutex_hash);
+    return ms_strs.at(i);
 }
 
 
@@ -137,17 +153,15 @@ bool string_hash_t::is_valid_as_observable_argument() const
 }
 
 
-const std::string& string_hash_t::string() const
+std::string string_hash_t::string() const
 {
-    std::lock_guard<std::mutex> lock(ms_mutex_hash);
-    return ms_strs.at(m_hash);
+    return hash2str(m_hash);
 }
 
 
-string_hash_t::operator const std::string& () const
+string_hash_t::operator std::string () const
 {
-    std::lock_guard<std::mutex> lock(ms_mutex_hash);
-    return ms_strs.at(m_hash);
+    return hash2str(m_hash);
 }
 
 

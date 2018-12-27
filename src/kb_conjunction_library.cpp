@@ -7,6 +7,9 @@ namespace kb
 {
 
 
+std::mutex conjunction_library_t::ms_mutex;
+
+
 conjunction_library_t::conjunction_library_t(const filepath_t &path)
     : cdb_data_t(path)
 {}
@@ -84,10 +87,13 @@ conjunction_library_t::get(predicate_id_t pid) const
     assert(is_readable());
 
     std::list<std::pair<conjunction_template_t, is_backward_t>> out;
-
     size_t value_size;
-    const char *value =
-        (const char*)cdb_data_t::get(&pid, sizeof(predicate_id_t), &value_size);
+    const char *value;
+
+    {
+        std::lock_guard<std::mutex> lock(ms_mutex);
+        value = (const char*)cdb_data_t::get(&pid, sizeof(predicate_id_t), &value_size);
+    }
 
     if (value != nullptr)
     {

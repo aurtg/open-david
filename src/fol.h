@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <set>
+#include <mutex>
 
 
 namespace dav
@@ -624,6 +625,9 @@ private:
     predicate_library_t(const filepath_t &p) : m_filename(p) {}
 
     static std::unique_ptr<predicate_library_t> ms_instance; /// For singleton pattern.
+
+    /** Mutex for add(), pred2id() and id2pred(). */
+    static std::mutex ms_mutex;
 
     filepath_t m_filename;
 
