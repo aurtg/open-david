@@ -183,19 +183,19 @@ rule_id_t rule_library_t::add_temporally(const rule_t &r)
 }
 
 
-inline size_t rule_library_t::size() const
+size_t rule_library_t::size() const
 {
     std::lock_guard<std::recursive_mutex> lock(ms_mutex);
     return m_num_rules;
 }
 
-inline bool rule_library_t::is_writable() const
+bool rule_library_t::is_writable() const
 {
     std::lock_guard<std::recursive_mutex> lock(ms_mutex);
     return (bool)m_fo_idx and (bool)m_fo_dat;
 }
 
-inline bool rule_library_t::is_readable() const
+bool rule_library_t::is_readable() const
 {
     std::lock_guard<std::recursive_mutex> lock(ms_mutex);
     return (bool)m_fi_idx and (bool)m_fi_dat;

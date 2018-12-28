@@ -1,3 +1,7 @@
+# 2018-12-28, Version 1.80
+
+- Fixed compilation errors in Linux.
+
 # 2018-12-27, Version 1.79
 
 > Ver.1.78 was skipped.

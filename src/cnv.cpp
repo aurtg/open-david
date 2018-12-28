@@ -111,28 +111,32 @@ void ilp_converter_t::process()
     ABORT;
 
     // ADDS VARIABLES OF EDGES
-    LOG_MIDDLE(format("converting edges to ILP-variables ... (%d edges)",
-        out->graph()->edges.size()));
+    LOG_MIDDLE(format("converting edges to ILP-variables ... (%d edges)", out->graph()->edges.size()));
     for (const auto &e : out->graph()->edges)
         out->vars.add(e);
     ABORT;
 
     // ADDS VARIABLES OF ATOMS
-    LOG_MIDDLE(format("making ILP-variables for exclusions ... (%d exclusions)",
-                      out->graph()->excs.size()));
+    LOG_MIDDLE(format("making ILP-variables for exclusions ... (%d exclusions)", out->graph()->excs.size()));
     make_variables_for_exclusions();
     ABORT;
 
-    LOG_MIDDLE("converting graph-structure to ILP-constraints ...");
+    LOG_MIDDLE("converting transitivity of equality to ILP-constraints ...");
 
     out->make_constraints_for_transitivity();
     ABORT;
+
+    LOG_MIDDLE("converting graph-structure to ILP-constraints ...");
+    
     out->make_constraints_for_atom_and_node();
     ABORT;
     out->make_constraints_for_hypernode_and_node();
     ABORT;
     out->make_constraints_for_edge();
     ABORT;
+    
+    LOG_MIDDLE("making other ILP-constraints ...");
+    
     out->make_constraints_for_closed_predicate();
     ABORT;
 
